@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 import org.jabref.logic.importer.fileformat.BibTeXMLImporter;
 import org.jabref.logic.importer.fileformat.BiblioscapeImporter;
 import org.jabref.logic.importer.fileformat.BibtexImporter;
+import org.jabref.logic.importer.fileformat.CSVImporter;
 import org.jabref.logic.importer.fileformat.CopacImporter;
 import org.jabref.logic.importer.fileformat.EndnoteImporter;
 import org.jabref.logic.importer.fileformat.FreeCiteImporter;
@@ -109,6 +110,7 @@ public class ImporterTest {
                 new Object[]{new BibtexImporter(importFormatPreferences, new DummyFileUpdateMonitor())},
                 new Object[]{new BibTeXMLImporter()},
                 new Object[]{new CopacImporter()},
+                new Object[]{new CSVImporter()},
                 new Object[]{new EndnoteImporter(importFormatPreferences)},
                 new Object[]{new FreeCiteImporter(importFormatPreferences)},
                 new Object[]{new InspecImporter()},

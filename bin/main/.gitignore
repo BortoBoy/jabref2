@@ -1,10 +1,10 @@
-/org/
 /ApplicationInsights.xml
 /META-INF/
 /build.properties
 /fonts/
 /icons/
 /images/
+/org/
 /journals/
 /l10n/
 /log4j2.xml

@@ -85,6 +85,7 @@ import org.jabref.logic.bibtexkeypattern.BibtexKeyGenerator;
 import org.jabref.logic.help.HelpFile;
 import org.jabref.logic.importer.ImportInspector;
 import org.jabref.logic.importer.OutputPrinter;
+import org.jabref.logic.importer.ParserResult;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.UpdateField;
 import org.jabref.model.Defaults;
@@ -273,6 +274,8 @@ public class ImportInspectionDialog extends JabRefDialog implements ImportInspec
         JButton deselectAll = new JButton(Localization.lang("Deselect all"));
         builder.addButton(deselectAll);
         builder.addButton(deselectAllDuplicates);
+        JButton selectAllDuplicates = new JButton(Localization.lang("Select all duplicates"));
+        builder.addButton(selectAllDuplicates);
         builder.addRelatedGap();
         JButton delete = new JButton(Localization.lang("Delete"));
         builder.addButton(delete);
@@ -285,6 +288,31 @@ public class ImportInspectionDialog extends JabRefDialog implements ImportInspec
         ok.setEnabled(false);
         generate.setEnabled(false);
         ok.addActionListener(new OkListener());
+        JButton createNewDatabase = new JButton(Localization.lang("Create new database"));
+        createNewDatabase.setToolTipText("Create new database with selected entries");
+        builder.addButton(createNewDatabase);
+        createNewDatabase.addActionListener(e -> {
+            BibDatabase bibdata = new BibDatabase();
+
+            for (BibEntry entry : entries) {
+                if (entry.isSearchHit()) {
+                    bibdata.insertEntry(entry);
+                }
+            }
+            //If there's any entries, create a new tab on the main frame
+            if (bibdata.hasEntries()) {
+                ParserResult result = new ParserResult(bibdata);
+                frame.addTab(result.getDatabaseContext(), true);
+            }
+        });
+        selectAllDuplicates.addActionListener(e -> {
+            for (int i = 0; i < glTable.getRowCount(); i++) {
+                if (glTable.getValueAt(i, DUPL_COL) != null) {
+                    glTable.setValueAt(true, i, 0);
+                }
+            }
+            glTable.repaint();
+        });
         cancel.addActionListener(e -> {
             signalStopFetching();
             dispose();
@@ -649,8 +677,8 @@ public class ImportInspectionDialog extends JabRefDialog implements ImportInspec
      */
     public void showErrorMessage(String fetcherTitle, String localizedException) {
         showMessage(Localization.lang("Error while fetching from %0", fetcherTitle) + "\n" +
-                        Localization.lang("Please try again later and/or check your network connection.") + "\n" +
-                        localizedException,
+                Localization.lang("Please try again later and/or check your network connection.") + "\n" +
+                localizedException,
                 Localization.lang("Search %0", fetcherTitle), JOptionPane.ERROR_MESSAGE);
     }
 
@@ -1302,7 +1330,7 @@ public class ImportInspectionDialog extends JabRefDialog implements ImportInspec
                             }
                             glTable.repaint();
                         }
-                    } , diag));
+                    }, diag));
 
         }
     }
@@ -1419,29 +1447,29 @@ public class ImportInspectionDialog extends JabRefDialog implements ImportInspec
                 return entry.isSearchHit() ? Boolean.TRUE : Boolean.FALSE;
             } else if (i < PAD) {
                 switch (i) {
-                case DUPL_COL:
-                    return entry.isGroupHit() ? duplLabel : null;
-                case FILE_COL:
-                    if (entry.hasField(FieldName.FILE)) {
-                        FileListTableModel model = new FileListTableModel();
-                        entry.getField(FieldName.FILE).ifPresent(model::setContent);
-                        fileLabel.setToolTipText(model.getToolTipHTMLRepresentation());
-                        if ((model.getRowCount() > 0) && model.getEntry(0).getType().isPresent()) {
-                            fileLabel.setIcon(model.getEntry(0).getType().get().getIcon());
+                    case DUPL_COL:
+                        return entry.isGroupHit() ? duplLabel : null;
+                    case FILE_COL:
+                        if (entry.hasField(FieldName.FILE)) {
+                            FileListTableModel model = new FileListTableModel();
+                            entry.getField(FieldName.FILE).ifPresent(model::setContent);
+                            fileLabel.setToolTipText(model.getToolTipHTMLRepresentation());
+                            if ((model.getRowCount() > 0) && model.getEntry(0).getType().isPresent()) {
+                                fileLabel.setIcon(model.getEntry(0).getType().get().getIcon());
+                            }
+                            return fileLabel;
+                        } else {
+                            return null;
                         }
-                        return fileLabel;
-                    } else {
+                    case URL_COL:
+                        if (entry.hasField(FieldName.URL)) {
+                            urlLabel.setToolTipText(entry.getField(FieldName.URL).orElse(""));
+                            return urlLabel;
+                        } else {
+                            return null;
+                        }
+                    default:
                         return null;
-                    }
-                case URL_COL:
-                    if (entry.hasField(FieldName.URL)) {
-                        urlLabel.setToolTipText(entry.getField(FieldName.URL).orElse(""));
-                        return urlLabel;
-                    } else {
-                        return null;
-                    }
-                default:
-                    return null;
                 }
             } else {
                 String field = INSPECTION_FIELDS.get(i - PAD);
