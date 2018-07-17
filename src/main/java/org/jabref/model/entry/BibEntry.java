@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ObjectBinding;
@@ -47,6 +48,7 @@ public class BibEntry implements Cloneable {
     protected static final String ID_FIELD = "id";
     private static final Logger LOGGER = LoggerFactory.getLogger(BibEntry.class);
     private static final Pattern REMOVE_TRAILING_WHITESPACE = Pattern.compile("\\s+$");
+    private static final Pattern CHAVE_AUTOMATICA = Pattern.compile("^[a-zA-Z]+\\s([a-zA-Z]+).+:\\s(\\w+)\\s.+\\((\\d{4})\\)");
     private final SharedBibEntryData sharedBibEntryData;
     /**
      * Map to store the words in every field
@@ -58,7 +60,7 @@ public class BibEntry implements Cloneable {
     private final Map<String, String> latexFreeFields = new ConcurrentHashMap<>();
     private final EventBus eventBus = new EventBus();
     private String id;
-    private StringProperty type = new SimpleStringProperty();
+    private final StringProperty type = new SimpleStringProperty();
     private ObservableMap<String, String> fields = FXCollections.observableMap(new ConcurrentHashMap<>());
     // Search and grouping status is stored in boolean fields for quick reference:
     private boolean searchHit;

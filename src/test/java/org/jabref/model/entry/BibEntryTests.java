@@ -425,4 +425,5 @@ public class BibEntryTests {
         be.clearField("author");
         assertEquals(Optional.empty(), be.getField("author"));
     }
+
 }

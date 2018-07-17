@@ -191,7 +191,7 @@ public class BibtexKeyGenerator extends BracketedPattern {
      * @return the change to the key (or an empty optional if the key was not changed)
      */
     public Optional<FieldChange> generateAndSetKey(BibEntry entry) {
-        String newKey = generateKey(entry);
-        return entry.setCiteKey(newKey);
+    	String novaChave = generateKey(entry, "[autor][ano][titulo:upper]");
+    	return entry.setCiteKey(novaChave);
     }
 }
